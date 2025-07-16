@@ -1,33 +1,82 @@
-{
-  "name": "Python 3",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
-  "customizations": {
-    "codespaces": {
-      "openFiles": [
-        "README.md",
-        "streamlit_app.py"
-      ]
-    },
-    "vscode": {
-      "settings": {},
-      "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance"
-      ]
-    }
-  },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
-  "postAttachCommand": {
-    "server": "streamlit run streamlit_app.py --server.enableCORS false --server.enableXsrfProtection false"
-  },
-  "portsAttributes": {
-    "8501": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
-    }
-  },
-  "forwardPorts": [
-    8501
-  ]
-}
+import streamlit as st
+import pandas as pd
+import folium
+from streamlit_folium import st_folium
+
+# Load your data
+df = pd.read_csv("your_data.csv")  # Replace with your actual path
+df.columns = df.columns.str.strip()  # Remove trailing spaces in column names
+
+# Sidebar filters
+st.sidebar.header("Filters")
+
+# Country filter (single selection dropdown)
+selected_country = st.sidebar.selectbox(
+    "Select Country",
+    options=sorted(df['Country'].dropna().unique())
+)
+filtered_df = df[df['Country'] == selected_country]
+
+# Operation Type filter (single selection dropdown scoped to selected country)
+selected_op = st.sidebar.selectbox(
+    "Select Operation Type",
+    options=sorted(filtered_df['Operation Type'].dropna().unique())
+)
+filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
+
+# Center the map on average location of filtered airports
+if not filtered_df.empty:
+    center_lat = filtered_df['latitude'].mean()
+    center_lon = filtered_df['longitude'].mean()
+else:
+    center_lat, center_lon = 20, 0
+
+# Display map
+st.title("Global Airport Emissions Map")
+m = folium.Map(location=[center_lat, center_lon], zoom_start=3)
+
+# Add markers
+for _, row in filtered_df.iterrows():
+    popup_text = (
+        f"<b>Airport:</b> {row['Airport Name']}<br>"
+        f"<b>ICAO:</b> {row['Airport ICAO Code']}<br>"
+        f"<b>Country:</b> {row['Country']}<br>"
+        f"<b>Flights:</b> {row['Flights']}<br>"
+        f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.2f}<br>"
+        f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,.2f}<br>"
+        f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,.2f}<br>"
+        f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.2f}<br>"
+        f"<b>PM2.5 (mg):</b> {row['PM2.5 LTO Emission (mg)']:,.2f}<br>"
+        f"<b>Operation Type:</b> {row['Operation Type']}"
+    )
+    folium.CircleMarker(
+        location=[row['latitude'], row['longitude']],
+        radius=6,
+        color='blue',
+        fill=True,
+        fill_opacity=0.7,
+        popup=folium.Popup(popup_text, max_width=300)
+    ).add_to(m)
+
+# Render map full width
+st_data = st_folium(m, use_container_width=True, height=600)
+
+# Summary section
+st.subheader("Summary of Filtered Results")
+
+summary = filtered_df[[
+    'Flights',
+    'Fuel LTO Cycle (kg)',
+    'HC LTO Total mass (g)',
+    'CO LTO Total Mass (g)',
+    'NOx LTO Total mass (g)',
+    'PM2.5 LTO Emission (mg)'
+]].sum().rename({
+    'Fuel LTO Cycle (kg)': 'Fuel (kg)',
+    'HC LTO Total mass (g)': 'HC (g)',
+    'CO LTO Total Mass (g)': 'CO (g)',
+    'NOx LTO Total mass (g)': 'NOx (g)',
+    'PM2.5 LTO Emission (mg)': 'PM2.5 (mg)'
+})
+
+st.dataframe(summary.to_frame(name="Total").style.format("{:,.2f}"))
