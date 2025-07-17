@@ -5,7 +5,9 @@ from streamlit_folium import st_folium
 from PIL import Image
 
 # Load logo
-logo = Image.open("icct_logo.jpg")
+logo = Image.open("logo/icct_logo.jpg")
+spire_logo = Image.open("logo/LOGO_Spire_Aviation_Color_RGB.png") 
+iba_logo = Image.open("logo/IBA Logo.png")      
 
 # Display logo at the top of the sidebar
 with st.sidebar:
@@ -47,7 +49,7 @@ filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
 # Title
 st.title("Top 500 Airports Based on Highest Number of Flights")
 st.markdown(
-    "This map displays the airports with the highest 500 flight counts. It serves as an example from the International Council on Clean Transportation's Data Explorer. "
+    "This map displays the airports with the highest 500 flight counts with the greenhouse gas and pollution profile from aircraft landing and take off activity (LTO) . This serves as an example data from the International Council on Clean Transportation's Data Explorer. "
     "To request access to the full dataset, please click here: xxx"
 )
 # Map center logic
@@ -118,3 +120,38 @@ formatted_summary_df = summary_df.applymap(lambda x: f"{x:,}")
 
 # Display the formatted DataFrame without the index
 st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
+
+## Dispaly data partners
+st.markdown("---")
+st.header("Data Partners")
+
+# Create columns for layout
+col1, col2 = st.columns([1, 4])
+
+with col1:
+    st.image(spire_logo, width=150)
+
+with col2:
+    st.markdown("""
+    **Spire Aviation** is the industry trustworthy source for global flight tracking data to power applications; drive decision making and improve cost efficiencies.  
+    Spire’s 10+ satellites capture global aircraft movements using ADS-B signals, which combined with multi-terrestrial data sources provide enhanced global coverage, not just over inhabited regions, but also in remote locations and above the deep ocean.  
+
+    From historical flight data, ADS-B tracking, to up-to-date data on weather impacting aviation operations, Spire’s versatile datasets help companies solve their business challenges and predict upcoming industry trends.  
+    [Learn more](https://spire.com/aviation/)
+    """)
+
+
+col3, col4 = st.columns([1, 4])
+
+with col3:
+    st.image(iba_logo, width=150)
+
+with col4:
+    st.markdown("""
+    **IBA** is a trusted provider of aviation intelligence and advisory services, supporting researchers and policy groups, investors, operators, and lessors with robust, data-driven insight.  
+    Founded in 1988, IBA delivers comprehensive fleet, emissions, and valuation analytics that underpin high-impact research, regulatory assessments, and strategic decision-making across the global aviation sector.  
+
+    For this project, IBA’s fleet intelligence—covering aircraft configuration, engine pairing, ownership, and operational status—was used to help link aircraft and engine configurations to emissions activity at the airport and aircraft class level.  
+    The data is continuously updated and validated through integrations with global flight tracking providers and IBA’s in-house appraisal and consulting teams.  
+    [Learn more](https://www.iba.aero)
+    """)
