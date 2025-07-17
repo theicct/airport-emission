@@ -2,6 +2,15 @@ import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
+from PIL import Image
+
+# Load logo
+logo = Image.open("icct_logo.jpg")
+
+# Display logo at the top of the sidebar
+with st.sidebar:
+    st.image(logo, use_container_width=True)
+#   st.markdown("### Filter Airports")
 
 # Set layout
 st.set_page_config(layout="wide")
