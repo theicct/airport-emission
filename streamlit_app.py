@@ -16,29 +16,33 @@ with st.sidebar:
 st.set_page_config(layout="wide")
 
 # Load data
-df = pd.read_csv("Data_Explorer_Final_with_coordinates_500.csv")
+df = pd.read_csv("Data_Explorer_Final_with_coordinates_500_example.csv")
 df.columns = df.columns.str.strip()
 
 # Sidebar Filters (default spacing)
 st.sidebar.header("Filter Airports")
 
-selected_countries = st.sidebar.multiselect(
+# Allow only one country selection
+selected_country = st.sidebar.selectbox(
     "Select Country", 
     options=sorted(df['Country'].dropna().unique())
 )
-filtered_df = df[df['Country'].isin(selected_countries)] if selected_countries else df
+filtered_df = df[df['Country'] == selected_country]
 
+# Allow multiple airports (still using multiselect)
 selected_airports = st.sidebar.multiselect(
     "Select Airport", 
     options=sorted(filtered_df['Airport Name'].dropna().unique())
 )
 filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] if selected_airports else filtered_df
 
-selected_ops = st.sidebar.multiselect(
+# Allow only one operation type
+selected_op = st.sidebar.selectbox(
     "Select Operation Type", 
     options=sorted(filtered_df['Operation Type'].dropna().unique())
 )
-filtered_df = filtered_df[filtered_df['Operation Type'].isin(selected_ops)] if selected_ops else filtered_df
+filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
+
 
 # Title
 st.title("Global Airport Emissions Map")
