@@ -71,6 +71,19 @@ if not filtered_df.empty:
 
     # Create Folium map
     m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom_level, min_zoom=2)
+    # Display the map with custom styling
+    with st.container():
+        st.markdown("""
+            <style>
+            iframe {
+                min-height: 600px !important;
+                max-height: 600px !important;
+                height: 600px !important;
+                display: block;
+                margin-bottom: 0px !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
     for _, row in filtered_df.iterrows():
         popup_text = (
