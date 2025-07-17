@@ -5,9 +5,16 @@ from streamlit_folium import st_folium
 from PIL import Image
 
 # Load logo
+icon = Image.open("logo/icct-icon-tab.png")
 logo = Image.open("logo/icct_logo.jpg")
 spire_logo = Image.open("logo/LOGO_Spire_Aviation_Color_RGB.png") 
 iba_logo = Image.open("logo/IBA Logo.png")      
+
+# Display logo and title
+st.set_page_config(
+    page_title="Data Explorer - AIRLIFT",
+    page_icon=icon,  # optional emoji or use image below
+)
 
 # Display logo at the top of the sidebar
 with st.sidebar:
