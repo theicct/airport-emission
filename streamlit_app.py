@@ -111,4 +111,4 @@ summary_df = summary_df.astype(int)
 summary_df.reset_index(drop=True, inplace=True)
 
 # Display
-st.dataframe(summary_df)
+st.dataframe(summary_df, use_container_width=True, hide_index=True)
