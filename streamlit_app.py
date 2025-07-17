@@ -7,7 +7,7 @@ from streamlit_folium import st_folium
 st.set_page_config(layout="wide")
 
 # Load data
-df = pd.read_csv("Data_Explorer_Final_with_coordinate_500.csv")
+df = pd.read_csv("Data_Explorer_Final_with_coordinates_500.csv")
 df.columns = df.columns.str.strip()
 
 # Sidebar Filters (default spacing)
