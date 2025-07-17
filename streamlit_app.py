@@ -110,5 +110,12 @@ summary_df.insert(0, 'Number of Airports', filtered_df['Airport Name'].nunique()
 summary_df = summary_df.astype(int)
 summary_df.reset_index(drop=True, inplace=True)
 
+# Format with commas
+formatted_summary_df = summary_df.applymap(lambda x: f"{x:,}")
+
+# Display the formatted DataFrame without the index
+st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
+
+
 # Display
 st.dataframe(summary_df, use_container_width=True, hide_index=True)
