@@ -62,30 +62,39 @@ else:
 # Create Folium map
 m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
 
-# Add markers
-for _, row in filtered_df.iterrows():
-    popup_text = (
-        f"<b>Airport:</b> {row['Airport Name']}<br>"
-        f"<b>ICAO:</b> {row['Airport ICAO Code']}<br>"
-        f"<b>Country:</b> {row['Country']}<br>"
-        f"<b>Flights:</b> {row['Flights']}<br>"
-        f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.0f}<br>"
-        f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,.0f}<br>"
-        f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,.0f}<br>"
-        f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.0f}<br>"
-        f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,.0f}<br>"
-        f"<b>Operation Type:</b> {row['Operation Type']}"
-    )
-    folium.CircleMarker(
-        location=[row['Airport Latitude'], row['Airport Longitude']],
-        radius=6,
-        color='blue',
-        fill=True,
-        fill_opacity=0.7,
-        popup=folium.Popup(popup_text, max_width=300)
-    ).add_to(m)
+# Create and render map only if data exists
+if not filtered_df.empty:
+    center_lat = filtered_df['Airport Latitude'].mean()
+    center_lon = filtered_df['Airport Longitude'].mean()
+    
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
 
-st_folium(m, use_container_width=True, height=600)
+    for _, row in filtered_df.iterrows():
+        popup_text = (
+            f"<b>Airport:</b> {row['Airport Name']}<br>"
+            f"<b>ICAO:</b> {row['Airport ICAO Code']}<br>"
+            f"<b>Country:</b> {row['Country']}<br>"
+            f"<b>Flights:</b> {row['Flights']}<br>"
+            f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.0f}<br>"
+            f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,.0f}<br>"
+            f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,.0f}<br>"
+            f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.0f}<br>"
+            f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,.0f}<br>"
+            f"<b>Operation Type:</b> {row['Operation Type']}"
+        )
+        folium.CircleMarker(
+            location=[row['Airport Latitude'], row['Airport Longitude']],
+            radius=6,
+            color='blue',
+            fill=True,
+            fill_opacity=0.7,
+            popup=folium.Popup(popup_text, max_width=300)
+        ).add_to(m)
+
+    st_folium(m, use_container_width=True, height=600, returned_objects=[])
+
+else:
+    st.warning("No data available for the selected filter. Please adjust your selection.")
 
 # Summary
 st.subheader("Summary of Filtered Results")
