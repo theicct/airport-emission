@@ -150,13 +150,12 @@ st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
 st.markdown("---")
 st.header("Data Partners")
 
-# Create columns for layout
-col1, col2 = st.columns([1, 4])
-
-with col1:
-    st.image(spire_logo, width=150)
-
-with col2:
+# === Spire Section ===
+spire_col1, spire_col2 = st.columns([1, 4])
+with spire_col1:
+    st.write("")
+    st.image(spire_logo)
+with spire_col2:
     st.markdown("""
     **Spire Aviation** is the industry trustworthy source for global flight tracking data to power applications; drive decision making and improve cost efficiencies.  
     Spire’s 10+ satellites capture global aircraft movements using ADS-B signals, which combined with multi-terrestrial data sources provide enhanced global coverage, not just over inhabited regions, but also in remote locations and above the deep ocean.  
@@ -165,13 +164,12 @@ with col2:
     [Learn more](https://spire.com/aviation/)
     """)
 
-
-col3, col4 = st.columns([1, 4])
-
-with col3:
-    st.image(iba_logo, width=150)
-
-with col4:
+# === IBA Section ===
+iba_col1, iba_col2 = st.columns([1, 4])
+with iba_col1:
+    st.write("")
+    st.image(iba_logo)
+with iba_col2:
     st.markdown("""
     **IBA** is a trusted provider of aviation intelligence and advisory services, supporting researchers and policy groups, investors, operators, and lessors with robust, data-driven insight.  
     Founded in 1988, IBA delivers comprehensive fleet, emissions, and valuation analytics that underpin high-impact research, regulatory assessments, and strategic decision-making across the global aviation sector.  
