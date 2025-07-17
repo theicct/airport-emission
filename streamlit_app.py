@@ -47,7 +47,7 @@ filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
 
 
 # Title
-st.title("Data Explorer: Top 500 Airports Based on Highest Number of Flights")
+st.title("AIRLIFT - Aircraft Local Impact Footprint Tool ")
 st.markdown("This map displays the top 500 airports with the highest flight counts. Click to see the greenhouse gas and pollution profile from aircraft landing and take off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer. ")
 st.markdown("To request access to the full dataset of 5000 airports, please click here: theicct.org/xxx")
 
