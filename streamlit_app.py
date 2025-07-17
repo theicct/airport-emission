@@ -63,11 +63,14 @@ else:
 m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
 
 # Create and render map only if data exists
+# Map center and zoom logic based on selected country
 if not filtered_df.empty:
     center_lat = filtered_df['Airport Latitude'].mean()
     center_lon = filtered_df['Airport Longitude'].mean()
-    
-    m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
+    zoom_level = 5 if selected_country else 2
+
+    # Create Folium map
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom_level, min_zoom=2)
 
     for _, row in filtered_df.iterrows():
         popup_text = (
@@ -90,8 +93,9 @@ if not filtered_df.empty:
             fill_opacity=0.7,
             popup=folium.Popup(popup_text, max_width=300)
         ).add_to(m)
-
-    st_folium(m, use_container_width=True, height=600, returned_objects=[])
+    
+    # Display the map
+    st_folium(m, use_container_width=True, height=600)
 
 else:
     st.warning("No data available for the selected filter. Please adjust your selection.")
@@ -125,7 +129,7 @@ summary_df = summary_df.astype(int)
 summary_df.reset_index(drop=True, inplace=True)
 
 # Format with commas
-formatted_summary_df = summary_df.applymap(lambda x: f"{x:,}")
+formatted_summary_df = summary_df.map(lambda x: f"{x:,}")
 
 # Display the formatted DataFrame without the index
 st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
