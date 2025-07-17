@@ -1,63 +1,71 @@
 import streamlit as st
 import pandas as pd
 import folium
-#from streamlit_folium import st_folium
+from streamlit_folium import st_folium
 
-# Load your data
-df = pd.read_csv("Data_Explorer_Final_with_coordinates.csv")  # Replace with your actual file path
-df.columns = df.columns.str.strip()  # Clean column names
+# Set layout
+st.set_page_config(layout="wide")
 
-# Sidebar filters
+# Load data
+df = pd.read_csv("Data_Explorer_Final_with_coordinates.csv")
+df.columns = df.columns.str.strip()
+
+# Sidebar Filters (default spacing)
 st.sidebar.header("Filter Airports")
 
-# Multiselect for country
 selected_countries = st.sidebar.multiselect(
     "Select Country", 
-    options=sorted(df['Country'].dropna().unique()), 
-    default=sorted(df['Country'].dropna().unique())
+    options=sorted(df['Country'].dropna().unique())
 )
-filtered_df = df[df['Country'].isin(selected_countries)]
+filtered_df = df[df['Country'].isin(selected_countries)] if selected_countries else df
 
-# Multiselect for airport name (filtered by selected countries)
 selected_airports = st.sidebar.multiselect(
     "Select Airport", 
-    options=sorted(filtered_df['Airport Name'].dropna().unique()), 
-    default=sorted(filtered_df['Airport Name'].dropna().unique())
+    options=sorted(filtered_df['Airport Name'].dropna().unique())
 )
-filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)]
+filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] if selected_airports else filtered_df
 
-# Multiselect for operation type (filtered by selected airports)
-selected_ops = st.sidebar.multiselect(
+selected_op = st.sidebar.selectbox(
     "Select Operation Type", 
-    options=sorted(filtered_df['Operation Type'].dropna().unique()), 
-    default=sorted(filtered_df['Operation Type'].dropna().unique())
+    options=["All"] + sorted(filtered_df['Operation Type'].dropna().unique())
 )
-filtered_df = filtered_df[filtered_df['Operation Type'].isin(selected_ops)]
 
-# Create map (centered around filtered data)
+if selected_op != "All":
+    filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
+
+# Title
 st.title("Global Airport Emissions Map")
+
+# Map center logic
 if not filtered_df.empty:
     center_lat = filtered_df['Airport Latitude'].mean()
     center_lon = filtered_df['Airport Longitude'].mean()
 else:
     center_lat, center_lon = 20, 0
 
-m = folium.Map(location=[center_lat, center_lon], zoom_start=2)
+# Create Folium map
+m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
 
 # Add markers
 for _, row in filtered_df.iterrows():
+    if selected_op == "All":
+        op_summary = f"<b>Operation Type:</b> {row['Operation Type']}"
+    else:
+        op_summary = f"<b>Operation Type:</b> {selected_op}"
+
     popup_text = (
         f"<b>Airport:</b> {row['Airport Name']}<br>"
         f"<b>ICAO:</b> {row['Airport ICAO Code']}<br>"
         f"<b>Country:</b> {row['Country']}<br>"
-        f"<b>Flights:</b> {row['Flights']}<br>"
-        f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.2f}<br>"
-        f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,.2f}<br>"
-        f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,.2f}<br>"
-        f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.2f}<br>"
-        f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,.2f}<br>"
-        f"<b>Operation Type:</b> {row['Operation Type']}"
+        f"<b>Flights:</b> {row['Flights']:,}<br>"
+        f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,}<br>"
+        f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,}<br>"
+        f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,}<br>"
+        f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,}<br>"
+        f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,}<br>"
+        f"{op_summary}"
     )
+
     folium.CircleMarker(
         location=[row['Airport Latitude'], row['Airport Longitude']],
         radius=6,
@@ -67,12 +75,13 @@ for _, row in filtered_df.iterrows():
         popup=folium.Popup(popup_text, max_width=300)
     ).add_to(m)
 
-# Render map full width
-st_data = st_folium(m, use_container_width=True, height=600)
 
-# Summary section
+st_folium(m, use_container_width=True, height=600)
+
+# Summary
 st.subheader("Summary of Filtered Results")
 
+# Compute summary
 summary = filtered_df[[
     'Flights',
     'Fuel LTO Cycle (kg)',
@@ -80,12 +89,22 @@ summary = filtered_df[[
     'CO LTO Total Mass (g)',
     'NOx LTO Total mass (g)',
     'PM2.5 LTO Emission (g)'
-]].sum().rename({
-    'Fuel LTO Cycle (kg)': 'Fuel (kg)',
-    'HC LTO Total mass (g)': 'HC (g)',
-    'CO LTO Total Mass (g)': 'CO (g)',
-    'NOx LTO Total mass (g)': 'NOx (g)',
-    'PM2.5 LTO Emission (mg)': 'PM2.5 (g)'
-})
+]].sum()
 
-st.dataframe(summary.to_frame(name="Total").style.format("{:,.2f}"))
+summary.index = [
+    'Total Flights',
+    'Total LTO Fuel (kg)',
+    'Total LTO HC pollution (g)',
+    'Total LTO CO pollution (g)',
+    'Total LTO NOx pollution (g)',
+    'Total LTO PM2.5 pollution (g)'
+]
+
+# Add number of airports
+summary_df = pd.DataFrame(summary).T
+summary_df.insert(0, 'Number of Airports', filtered_df['Airport Name'].nunique())
+summary_df = summary_df.astype(int)
+summary_df.reset_index(drop=True, inplace=True)
+
+# Display
+st.dataframe(summary_df)
