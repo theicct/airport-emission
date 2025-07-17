@@ -7,7 +7,7 @@ from streamlit_folium import st_folium
 st.set_page_config(layout="wide")
 
 # Load data
-df = pd.read_csv("Data_Explorer_Final_with_coordinates.csv")
+df = pd.read_csv("Data_Explorer_Final_with_coordinate_500.csv")
 df.columns = df.columns.str.strip()
 
 # Sidebar Filters (default spacing)
@@ -25,13 +25,11 @@ selected_airports = st.sidebar.multiselect(
 )
 filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] if selected_airports else filtered_df
 
-selected_op = st.sidebar.selectbox(
+selected_ops = st.sidebar.multiselect(
     "Select Operation Type", 
-    options=["All"] + sorted(filtered_df['Operation Type'].dropna().unique())
+    options=sorted(filtered_df['Operation Type'].dropna().unique())
 )
-
-if selected_op != "All":
-    filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
+filtered_df = filtered_df[filtered_df['Operation Type'].isin(selected_ops)] if selected_ops else filtered_df
 
 # Title
 st.title("Global Airport Emissions Map")
@@ -48,24 +46,18 @@ m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
 
 # Add markers
 for _, row in filtered_df.iterrows():
-    if selected_op == "All":
-        op_summary = f"<b>Operation Type:</b> {row['Operation Type']}"
-    else:
-        op_summary = f"<b>Operation Type:</b> {selected_op}"
-
     popup_text = (
         f"<b>Airport:</b> {row['Airport Name']}<br>"
         f"<b>ICAO:</b> {row['Airport ICAO Code']}<br>"
         f"<b>Country:</b> {row['Country']}<br>"
-        f"<b>Flights:</b> {row['Flights']:,}<br>"
-        f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,}<br>"
-        f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,}<br>"
-        f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,}<br>"
-        f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,}<br>"
-        f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,}<br>"
-        f"{op_summary}"
+        f"<b>Flights:</b> {row['Flights']}<br>"
+        f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.0f}<br>"
+        f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,.0f}<br>"
+        f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,.0f}<br>"
+        f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.0f}<br>"
+        f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,.0f}<br>"
+        f"<b>Operation Type:</b> {row['Operation Type']}"
     )
-
     folium.CircleMarker(
         location=[row['Airport Latitude'], row['Airport Longitude']],
         radius=6,
@@ -74,7 +66,6 @@ for _, row in filtered_df.iterrows():
         fill_opacity=0.7,
         popup=folium.Popup(popup_text, max_width=300)
     ).add_to(m)
-
 
 st_folium(m, use_container_width=True, height=600)
 
