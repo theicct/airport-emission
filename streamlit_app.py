@@ -48,8 +48,14 @@ filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] i
 
 # Title
 st.title("AIRLIFT - Aircraft Local Impact Footprint Tool ")
-st.markdown("This map displays the top 500 airports with the highest flight counts. Click to see the greenhouse gas and pollution profile from aircraft landing and take off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer. ")
-st.markdown("To request access to the full dataset of 5000 airports, please click here: theicct.org/xxx")
+st.markdown(
+    "This map displays the top 500 airports with the highest flight counts. Click to see the greenhouse gas and NO<sub>x</sub> pollution profile from aircraft landing and take-off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer.",
+    unsafe_allow_html=True
+)
+st.markdown(
+    'To request access to the full dataset of 5,000 airports with different flight categories and other pollutants (PM<sub>2.5</sub>, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.',
+    unsafe_allow_html=True
+)
 
 # Map center logic
 if not filtered_df.empty:
@@ -146,12 +152,13 @@ with spire_col1:
     st.image(spire_logo)
 with spire_col2:
     st.markdown("""
-    **Spire Aviation** is the industry trustworthy source for global flight tracking data to power applications; drive decision making and improve cost efficiencies.  
+    **Spire Aviation** is the industry trustworthy source for global flight tracking data to power applications, drive decision making and improve cost efficiencies. 
+                 
     Spire’s 10+ satellites capture global aircraft movements using ADS-B signals, which combined with multi-terrestrial data sources provide enhanced global coverage, not just over inhabited regions, but also in remote locations and above the deep ocean.  
 
     From historical flight data, ADS-B tracking, to up-to-date data on weather impacting aviation operations, Spire’s versatile datasets help companies solve their business challenges and predict upcoming industry trends.  
-    [Learn more](https://spire.com/aviation/)
-    """)
+    To learn more, visit <a href="https://spire.com/aviation/" target="_blank">https://spire.com/aviation/</a>
+    """, unsafe_allow_html=True)
 
 # === IBA Section ===
 iba_col1, iba_col2 = st.columns([1, 4])
@@ -160,10 +167,9 @@ with iba_col1:
     st.image(iba_logo)
 with iba_col2:
     st.markdown("""
-    **IBA** is a trusted provider of aviation intelligence and advisory services, supporting researchers and policy groups, investors, operators, and lessors with robust, data-driven insight.  
-    Founded in 1988, IBA delivers comprehensive fleet, emissions, and valuation analytics that underpin high-impact research, regulatory assessments, and strategic decision-making across the global aviation sector.  
+    **IBA** is a trusted provider of aviation intelligence and advisory services, supporting researchers and policy groups, investors, operators, and lessors with robust, data-driven insight. Founded in 1988, IBA delivers comprehensive fleet, emissions, and valuation analytics that underpin high-impact research, regulatory assessments, and strategic decision-making across the global aviation sector.  
 
-    For this project, IBA’s fleet intelligence—covering aircraft configuration, engine pairing, ownership, and operational status—was used to help link aircraft and engine configurations to emissions activity at the airport and aircraft class level.  
-    The data is continuously updated and validated through integrations with global flight tracking providers and IBA’s in-house appraisal and consulting teams.  
-    [Learn more](https://www.iba.aero)
-    """)
+    For this project, IBA’s fleet intelligence—covering aircraft configuration, engine pairing, ownership, and operational status—was used to help link aircraft and engine configurations to emissions activity at the airport and aircraft class level. The data is continuously updated and validated through integrations with global flight tracking providers and IBA’s in-house appraisal and consulting teams.  
+    
+    Learn more at <a href="https://www.iba.aero" target="_blank">https://www.iba.aero</a>
+    """, unsafe_allow_html=True)
