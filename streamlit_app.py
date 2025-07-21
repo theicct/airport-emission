@@ -25,7 +25,7 @@ with st.sidebar:
 st.set_page_config(layout="wide")
 
 # Load data
-df = pd.read_csv("Data_Explorer_Final_with_coordinates_500_example.csv")
+df = pd.read_csv("Data_Sample_with_coordinates_500_airports.csv")
 df.columns = df.columns.str.strip()
 
 # Sidebar Filters (default spacing)
@@ -44,13 +44,6 @@ selected_airports = st.sidebar.multiselect(
     options=sorted(filtered_df['Airport Name'].dropna().unique())
 )
 filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] if selected_airports else filtered_df
-
-# Allow only one operation type
-selected_op = st.sidebar.selectbox(
-    "Select Operation Type", 
-    options=sorted(filtered_df['Operation Type'].dropna().unique())
-)
-filtered_df = filtered_df[filtered_df['Operation Type'] == selected_op]
 
 
 # Title
@@ -94,15 +87,10 @@ if not filtered_df.empty:
     for _, row in filtered_df.iterrows():
         popup_text = (
             f"<b>Airport:</b> {row['Airport Name']}<br>"
-            f"<b>ICAO:</b> {row['Airport ICAO Code']}<br>"
             f"<b>Country:</b> {row['Country']}<br>"
-            f"<b>Flights:</b> {row['Flights']}<br>"
+            f"<b>Flights:</b> {row['Flights']:,.0f}<br>"
             f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.0f}<br>"
-            f"<b>HC LTO (g):</b> {row['HC LTO Total mass (g)']:,.0f}<br>"
-            f"<b>CO LTO (g):</b> {row['CO LTO Total Mass (g)']:,.0f}<br>"
             f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.0f}<br>"
-            f"<b>PM2.5 (g):</b> {row['PM2.5 LTO Emission (g)']:,.0f}<br>"
-            f"<b>Operation Type:</b> {row['Operation Type']}"
         )
         folium.CircleMarker(
             location=[row['Airport Latitude'], row['Airport Longitude']],
@@ -126,19 +114,13 @@ st.subheader("Summary of Filtered Results")
 summary = filtered_df[[
     'Flights',
     'Fuel LTO Cycle (kg)',
-    'HC LTO Total mass (g)',
-    'CO LTO Total Mass (g)',
-    'NOx LTO Total mass (g)',
-    'PM2.5 LTO Emission (g)'
+    'NOx LTO Total mass (g)'
 ]].sum()
 
 summary.index = [
     'Total Flights',
     'Total LTO Fuel (kg)',
-    'Total LTO HC pollution (g)',
-    'Total LTO CO pollution (g)',
-    'Total LTO NOx pollution (g)',
-    'Total LTO PM2.5 pollution (g)'
+    'Total LTO NOx pollution (g)'
 ]
 
 # Add number of airports
