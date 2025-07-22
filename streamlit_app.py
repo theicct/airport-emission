@@ -7,16 +7,25 @@ from datetime import datetime
 from streamlit_folium import st_folium
 from PIL import Image
 
+api_key = st.secrets["COUNTERAPI_KEY"]
+up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
+get_url = "https://api.counterapi.dev/v2/aviation/airlift"
+
+# Set API details
+headers = {
+    "Authorization": f"Bearer {api_key}"
+}
+
 # Initialize session state
 if "counted" not in st.session_state:
     st.session_state.counted = False
 
-# Set API details
-url = "https://api.counterapi.dev/v2/aviation/airlift/up"
-headers = {
-    "Authorization": f"Bearer {st.secrets['COUNTERAPI_KEY']}"
-}
-
+# Only increment once per session
+if not st.session_state.counted:
+    post_response = requests.get(up_url, headers=headers)
+    if post_response.status_code == 200:
+        st.session_state.counted = True  # Mark as counted
+        
 # Load logo
 icon = Image.open("logo/icct-icon-tab.png")
 logo = Image.open("logo/icct_logo.jpg")
@@ -190,21 +199,9 @@ with iba_col2:
     """, unsafe_allow_html=True)
 
 # --- Visitor Counter at bottom of main page ---
-api_key = st.secrets["COUNTERAPI_KEY"]
-
-headers = {
-    "Authorization": f"Bearer {api_key}"
-}
-
-up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
-get_url = "https://api.counterapi.dev/v2/aviation/airlift"
-
-# Only increment once per session
 if not st.session_state.counted:
-    post_response = requests.get(up_url, headers=headers)
     if post_response.status_code == 200:
-        st.session_state.counted = True  # Mark as counted
-        st.markdown("---")  # separator line
+            st.markdown("---")  # separator line
 
 # Always get and display the current count
 response = requests.get(get_url, headers=headers)
