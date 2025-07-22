@@ -187,21 +187,34 @@ with iba_col2:
 st.markdown("---")  # separator line
 
 # Define the CounterAPI read endpoint
-url = "https://api.counterapi.dev/v2/test/test"  # change to your workspace/counter
 headers = {
     "Authorization": f"Bearer {st.secrets['COUNTERAPI_KEY']}"
 }
 
-# Call the API to get the current count
+# API endpoints
+up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
+get_url = "https://api.counterapi.dev/v2/aviation/airlift"
+
+# Increment the counter
+requests.post(up_url, headers=headers)
+
+# Retrieve the current value
+response = requests.get(get_url, headers=headers)
+
 try:
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        count = int(response.json().get("count", 0))
-        st.markdown(
-            f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>👥 Total Visits: <b>{count:,}</b></div>",
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(f"<div style='text-align: center; color: gray;'>👥 Total Visits: N/A (Error {response.status_code})</div>", unsafe_allow_html=True)
+    data = response.json()
+    count = int(data["data"].get("up_count", 0))
+
+    # Display centered visit count
+    st.markdown(
+        f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>"
+        f"👥 Total Visits: <b>{count:,}</b></div>",
+        unsafe_allow_html=True
+    )
 except Exception as e:
-    st.markdown("<div style='text-align: center; color: gray;'>👥 Total Visits: Error</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='text-align: center; font-size: 0.85rem; color: gray;'>"
+        "👥 Total Visits: <b>N/A</b> (Error)</div>",
+        unsafe_allow_html=True
+    )
+    st.error(f"Error loading counter: {e}")
