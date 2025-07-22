@@ -190,8 +190,6 @@ with iba_col2:
     """, unsafe_allow_html=True)
 
 # --- Visitor Counter at bottom of main page ---
-st.markdown("---")  # separator line
-
 api_key = st.secrets["COUNTERAPI_KEY"]
 
 headers = {
@@ -203,9 +201,10 @@ get_url = "https://api.counterapi.dev/v2/aviation/airlift"
 
 # Only increment once per session
 if not st.session_state.counted:
-    post_response = requests.post(up_url, headers=headers)
+    post_response = requests.get(up_url, headers=headers)
     if post_response.status_code == 200:
         st.session_state.counted = True  # Mark as counted
+        st.markdown("---")  # separator line
 
 # Always get and display the current count
 response = requests.get(get_url, headers=headers)
