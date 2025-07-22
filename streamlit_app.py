@@ -192,6 +192,12 @@ with iba_col2:
     """, unsafe_allow_html=True)
 
 # --- Visitor Counter at bottom of main page ---
+# Only increment once per session
+if not st.session_state.counted:
+    post_response = requests.get(up_url, headers=headers)
+    if post_response.status_code == 200:
+        st.session_state.counted = True  # Mark as counted
+        
 if not st.session_state.counted:
     if post_response.status_code == 200:
             st.markdown("---")  # separator line
@@ -209,9 +215,3 @@ if response.status_code == 200:
     )
 else:
     st.warning("⚠️ Failed to retrieve visit counter.")
-
-# Only increment once per session
-if not st.session_state.counted:
-    post_response = requests.get(up_url, headers=headers)
-    if post_response.status_code == 200:
-        st.session_state.counted = True  # Mark as counted
