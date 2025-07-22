@@ -7,6 +7,10 @@ from datetime import datetime
 from streamlit_folium import st_folium
 from PIL import Image
 
+# Initialize session state
+if "counted" not in st.session_state:
+    st.session_state.counted = False
+
 # Set API details
 url = "https://api.counterapi.dev/v2/aviation/airlift/up"
 headers = {
@@ -188,30 +192,32 @@ with iba_col2:
 # --- Visitor Counter at bottom of main page ---
 st.markdown("---")  # separator line
 
-# Define the CounterAPI read endpoint
+api_key = st.secrets["COUNTERAPI_KEY"]
+
 headers = {
-    "Authorization": f"Bearer {st.secrets['COUNTERAPI_KEY']}"
+    "Authorization": f"Bearer {api_key}"
 }
 
-# API endpoints
 up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
 get_url = "https://api.counterapi.dev/v2/aviation/airlift"
 
-# Increment the counter
-requests.get(up_url, headers=headers)
+# Only increment once per session
+if not st.session_state.counted:
+    post_response = requests.post(up_url, headers=headers)
+    if post_response.status_code == 200:
+        st.session_state.counted = True  # Mark as counted
 
-# Retrieve the current value
+# Always get and display the current count
 response = requests.get(get_url, headers=headers)
+if response.status_code == 200:
+    data = response.json()["data"]
+    count = int(data.get("up_count", 0))
 
-try:
-    data = response.json()
-    count = int(data["data"].get("up_count", 0))
-    
     st.markdown(
         f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>"
-        f"👥 Total Visits: <b>{count:,}</div>",
+        f"👥 Total Visits: <b>{count:,}</b> | © 2025 International Council on Clean Transportation. All Rights Reserved.</div>",
         unsafe_allow_html=True
     )
-except Exception as e:
-    st.markdown("👥 Total Visits: N/A")
-    st.error(f"Error: {e}")
+else:
+    st.warning("⚠️ Failed to retrieve visit counter.")
+
