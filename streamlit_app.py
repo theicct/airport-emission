@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import folium
+import requests
 from streamlit_folium import st_folium
 from PIL import Image
 
@@ -44,7 +45,6 @@ selected_airports = st.sidebar.multiselect(
     options=sorted(filtered_df['Airport Name'].dropna().unique())
 )
 filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] if selected_airports else filtered_df
-
 
 # Title
 st.title("AIRLIFT - Aircraft Local Impact Footprint Tool ")
@@ -143,7 +143,7 @@ st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
 
 ## Dispaly data partners
 st.markdown("---")
-st.header("Data Partners")
+st.subheader("Data Partners")
 
 # === Spire Section ===
 spire_col1, spire_col2 = st.columns([1, 4])
@@ -152,13 +152,15 @@ with spire_col1:
     st.image(spire_logo)
 with spire_col2:
     st.markdown("""
-    **Spire Aviation** is the industry trustworthy source for global flight tracking data to power applications, drive decision making and improve cost efficiencies. 
-                 
-    Spire’s 10+ satellites capture global aircraft movements using ADS-B signals, which combined with multi-terrestrial data sources provide enhanced global coverage, not just over inhabited regions, but also in remote locations and above the deep ocean.  
-
-    From historical flight data, ADS-B tracking, to up-to-date data on weather impacting aviation operations, Spire’s versatile datasets help companies solve their business challenges and predict upcoming industry trends.  
-    To learn more, visit <a href="https://spire.com/aviation/" target="_blank">https://spire.com/aviation/</a>
+    <div style='font-size: 0.85rem; color: gray;'>
+        <strong>Spire Aviation</strong> is the industry trustworthy source for global flight tracking data to power applications, drive decision making and improve cost efficiencies. 
+        Spire’s 10+ satellites capture global aircraft movements using ADS-B signals, which combined with multi-terrestrial data sources provide enhanced global coverage, not just over inhabited regions, but also in remote locations and above the deep ocean.  
+        From historical flight data, ADS-B tracking, to up-to-date data on weather impacting aviation operations, Spire’s versatile datasets help companies solve their business challenges and predict upcoming industry trends.  
+        To learn more, visit <a href="https://spire.com/aviation/" target="_blank">https://spire.com/aviation/</a>
+        <br><br>
+    </div>
     """, unsafe_allow_html=True)
+
 
 # === IBA Section ===
 iba_col1, iba_col2 = st.columns([1, 4])
@@ -167,9 +169,26 @@ with iba_col1:
     st.image(iba_logo)
 with iba_col2:
     st.markdown("""
-    **IBA** is a trusted provider of aviation intelligence and advisory services, supporting researchers and policy groups, investors, operators, and lessors with robust, data-driven insight. Founded in 1988, IBA delivers comprehensive fleet, emissions, and valuation analytics that underpin high-impact research, regulatory assessments, and strategic decision-making across the global aviation sector.  
-
-    For this project, IBA’s fleet intelligence—covering aircraft configuration, engine pairing, ownership, and operational status—was used to help link aircraft and engine configurations to emissions activity at the airport and aircraft class level. The data is continuously updated and validated through integrations with global flight tracking providers and IBA’s in-house appraisal and consulting teams.  
-    
-    Learn more at <a href="https://www.iba.aero" target="_blank">https://www.iba.aero</a>
+    <div style='font-size: 0.85rem; color: gray;'>
+        <strong>IBA</strong> is a trusted provider of aviation intelligence and advisory services, supporting researchers and policy groups, investors, operators, and lessors with robust, data-driven insight. Founded in 1988, IBA delivers comprehensive fleet, emissions, and valuation analytics that underpin high-impact research, regulatory assessments, and strategic decision-making across the global aviation sector.  
+        For this project, IBA’s fleet intelligence—covering aircraft configuration, engine pairing, ownership, and operational status—was used to help link aircraft and engine configurations to emissions activity at the airport and aircraft class level. The data is continuously updated and validated through integrations with global flight tracking providers and IBA’s in-house appraisal and consulting teams.  
+        Learn more at <a href="https://www.iba.aero" target="_blank">https://www.iba.aero</a>
+        <br><br>
+    </div>
     """, unsafe_allow_html=True)
+
+# --- Visitor Counter at bottom of main page ---
+st.markdown("---")  # separator line
+
+try:
+    response = requests.post("https://app.counterapi.dev/v2/workspaces/aviation/airlift")
+    if response.status_code == 200:
+        count = response.json().get("count", "N/A")
+        st.markdown(
+            f"<div style='text-align: left; font-size: 0.85rem; color: gray;'>👥 Total Visits: <b>{count:,}</b></div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown("👥 Total Visits: N/A")
+except:
+    st.markdown("👥 Total Visits: Error")
