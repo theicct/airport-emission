@@ -5,6 +5,12 @@ import requests
 from streamlit_folium import st_folium
 from PIL import Image
 
+# Set API details
+url = "https://api.counterapi.dev/v2/aviation/airlift/up"
+headers = {
+    "Authorization": f"Bearer {st.secrets['COUNTERAPI_KEY']}"
+}
+
 # Load logo
 icon = Image.open("logo/icct-icon-tab.png")
 logo = Image.open("logo/icct_logo.jpg")
@@ -180,15 +186,17 @@ with iba_col2:
 # --- Visitor Counter at bottom of main page ---
 st.markdown("---")  # separator line
 
+# Make the authenticated request
 try:
-    response = requests.post("https://app.counterapi.dev/v2/workspaces/aviation/airlift")
+    response = requests.post(url, headers=headers)
     if response.status_code == 200:
         count = response.json().get("count", "N/A")
         st.markdown(
-            f"<div style='text-align: left; font-size: 0.85rem; color: gray;'>👥 Total Visits: <b>{count:,}</b></div>",
+            f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>👥 Total Visits: <b>{count:,}</b></div>",
             unsafe_allow_html=True
         )
     else:
-        st.markdown("👥 Total Visits: N/A")
-except:
+        st.markdown(f"👥 Total Visits: N/A (Error {response.status_code})")
+except Exception as e:
     st.markdown("👥 Total Visits: Error")
+
