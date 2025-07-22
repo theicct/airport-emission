@@ -186,17 +186,22 @@ with iba_col2:
 # --- Visitor Counter at bottom of main page ---
 st.markdown("---")  # separator line
 
-# Make the authenticated request
+# Define the CounterAPI read endpoint
+url = "https://api.counterapi.dev/v2/test/test"  # change to your workspace/counter
+headers = {
+    "Authorization": f"Bearer {st.secrets['COUNTERAPI_KEY']}"
+}
+
+# Call the API to get the current count
 try:
-    response = requests.post(url, headers=headers)
+    response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        count = response.json().get("count", "N/A")
+        count = int(response.json().get("count", 0))
         st.markdown(
             f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>👥 Total Visits: <b>{count:,}</b></div>",
             unsafe_allow_html=True
         )
     else:
-        st.markdown(f"👥 Total Visits: N/A (Error {response.status_code})")
+        st.markdown(f"<div style='text-align: center; color: gray;'>👥 Total Visits: N/A (Error {response.status_code})</div>", unsafe_allow_html=True)
 except Exception as e:
-    st.markdown("👥 Total Visits: Error")
-
+    st.markdown("<div style='text-align: center; color: gray;'>👥 Total Visits: Error</div>", unsafe_allow_html=True)
