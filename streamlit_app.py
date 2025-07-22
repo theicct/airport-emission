@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import folium
 import requests
-import pytz
-from datetime import datetime
 from streamlit_folium import st_folium
 from PIL import Image
 
@@ -20,11 +18,6 @@ headers = {
 if "counted" not in st.session_state:
     st.session_state.counted = False
 
-# Only increment once per session
-if not st.session_state.counted:
-    post_response = requests.get(up_url, headers=headers)
-    if post_response.status_code == 200:
-        st.session_state.counted = True  # Mark as counted
         
 # Load logo
 icon = Image.open("logo/icct-icon-tab.png")
@@ -217,3 +210,8 @@ if response.status_code == 200:
 else:
     st.warning("⚠️ Failed to retrieve visit counter.")
 
+# Only increment once per session
+if not st.session_state.counted:
+    post_response = requests.get(up_url, headers=headers)
+    if post_response.status_code == 200:
+        st.session_state.counted = True  # Mark as counted
