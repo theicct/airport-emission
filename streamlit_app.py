@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import folium
 import requests
+import pytz
+from datetime import datetime
 from streamlit_folium import st_folium
 from PIL import Image
 
@@ -196,7 +198,7 @@ up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
 get_url = "https://api.counterapi.dev/v2/aviation/airlift"
 
 # Increment the counter
-requests.post(up_url, headers=headers)
+requests.get(up_url, headers=headers)
 
 # Retrieve the current value
 response = requests.get(get_url, headers=headers)
@@ -204,17 +206,12 @@ response = requests.get(get_url, headers=headers)
 try:
     data = response.json()
     count = int(data["data"].get("up_count", 0))
-
-    # Display centered visit count
+    
     st.markdown(
         f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>"
-        f"👥 Total Visits: <b>{count:,}</b></div>",
+        f"👥 Total Visits: <b>{count:,}</div>",
         unsafe_allow_html=True
     )
 except Exception as e:
-    st.markdown(
-        "<div style='text-align: center; font-size: 0.85rem; color: gray;'>"
-        "👥 Total Visits: <b>N/A</b> (Error)</div>",
-        unsafe_allow_html=True
-    )
-    st.error(f"Error loading counter: {e}")
+    st.markdown("👥 Total Visits: N/A")
+    st.error(f"Error: {e}")
