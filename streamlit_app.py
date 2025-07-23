@@ -210,7 +210,7 @@ if response.status_code == 200:
 
     st.markdown(
         f"<div style='text-align: center; font-size: 0.85rem; color: gray;'>"
-        f"👥 Total Visits: <b>{count:,}</b> | © 2025 International Council on Clean Transportation. All Rights Reserved.</div>",
+        f"👥 Total Activities: <b>{count:,}</b> | © 2025 International Council on Clean Transportation. All Rights Reserved.</div>",
         unsafe_allow_html=True
     )
 else:
