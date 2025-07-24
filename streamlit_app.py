@@ -134,7 +134,15 @@ if not filtered_df.empty:
           var marker = new google.maps.Marker({{
             position: {{ lat: airport["Airport Latitude"], lng: airport["Airport Longitude"] }},
             map: map,
-            title: airport["Airport Name"]
+            title: airport["Airport Name"],
+            icon: {{
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "#ffffff",
+              fillOpacity: 1,
+              scale: 6,
+              strokeColor: "#007D93",
+              strokeWeight: 3
+            }}
           }});
 
           var popup = new google.maps.InfoWindow({{
