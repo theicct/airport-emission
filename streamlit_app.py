@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import folium
 import requests
-from streamlit_folium import st_folium
+import json
+from streamlit.components.v1 import html
 from PIL import Image
 
 api_key = st.secrets["COUNTERAPI_KEY"]
@@ -34,7 +35,6 @@ st.set_page_config(
 # Display logo at the top of the sidebar
 with st.sidebar:
     st.image(logo, use_container_width=True)
-#   st.markdown("### Filter Airports")
 
 # Set layout
 st.set_page_config(layout="wide")
@@ -78,52 +78,85 @@ if not filtered_df.empty:
 else:
     center_lat, center_lon = 20, 0
 
-# Create Folium map
-m = folium.Map(location=[center_lat, center_lon], zoom_start=2, min_zoom=2)
-
-# Create and render map only if data exists
-# Map center and zoom logic based on selected country
+# Create and display Google Map using Snazzy style
 if not filtered_df.empty:
     center_lat = filtered_df['Airport Latitude'].mean()
     center_lon = filtered_df['Airport Longitude'].mean()
     zoom_level = 5 if selected_country else 2
 
-    # Create Folium map
-    m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom_level, min_zoom=2)
-    # Display the map with custom styling
-    with st.container():
-        st.markdown("""
-            <style>
-            iframe {
-                min-height: 600px !important;
-                max-height: 600px !important;
-                height: 600px !important;
-                display: block;
-                margin-bottom: 0px !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
+    # Snazzy Maps no-label style
+    snazzy_style = [
+        {"featureType": "all", "elementType": "labels", "stylers": [{"visibility": "off"}]},
+        {"featureType": "road", "elementType": "geometry", "stylers": [{"lightness": 100}, {"visibility": "simplified"}]},
+        {"featureType": "water", "elementType": "geometry", "stylers": [{"visibility": "on"}, {"color": "#C6E2FF"}]}
+    ]
 
-    for _, row in filtered_df.iterrows():
-        popup_text = (
-            f"<b>Airport:</b> {row['Airport Name']}<br>"
-            f"<b>Country:</b> {row['Country']}<br>"
-            f"<b>Flights:</b> {row['Flights']:,.0f}<br>"
-            f"<b>Fuel LTO Cycle (kg):</b> {row['Fuel LTO Cycle (kg)']:,.0f}<br>"
-            f"<b>NOx LTO (g):</b> {row['NOx LTO Total mass (g)']:,.0f}<br>"
-        )
-        folium.CircleMarker(
-            location=[row['Airport Latitude'], row['Airport Longitude']],
-            radius=6,
-            color='blue',
-            fill=True,
-            fill_opacity=0.7,
-            popup=folium.Popup(popup_text, max_width=300)
-        ).add_to(m)
-    
+    # Prepare JS-safe records
+    airport_data = filtered_df.to_dict(orient='records')
+    for row in airport_data:
+        row['Airport Latitude'] = float(row['Airport Latitude'])
+        row['Airport Longitude'] = float(row['Airport Longitude'])
+        row['Flights'] = int(row['Flights'])
+        row['Fuel LTO Cycle (kg)'] = int(row['Fuel LTO Cycle (kg)'])
+        row['NOx LTO Total mass (g)'] = int(row['NOx LTO Total mass (g)'])
+
+    # Build HTML for embedding Google Map
+    map_html = f"""
+    <div id="map" style="height: 600px; width: 100%;"></div>
+    <script>
+      function initMap() {{
+        var center = {{lat: {center_lat}, lng: {center_lon} }};
+        var map = new google.maps.Map(document.getElementById('map'), {{
+          center: center,
+          zoom: {zoom_level},
+          styles: {json.dumps(snazzy_style)},
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false
+        }});
+
+        var airports = {json.dumps(airport_data)};
+        airports.forEach(function(airport) {{
+          var marker = new google.maps.Marker({{
+            position: {{ lat: airport["Airport Latitude"], lng: airport["Airport Longitude"] }},
+            map: map,
+            title: airport["Airport Name"]
+          }});
+
+          var popup = new google.maps.InfoWindow({{
+            content: `
+              <div style="font-size: 14px;">
+                <b>Airport:</b> ${{
+                  airport["Airport Name"]
+                }}<br>
+                <b>Country:</b> ${{
+                  airport["Country"]
+                }}<br>
+                <b>Flights:</b> ${{
+                  airport["Flights"].toLocaleString()
+                }}<br>
+                <b>Fuel LTO Cycle (kg):</b> ${{
+                  airport["Fuel LTO Cycle (kg)"].toLocaleString()
+                }}<br>
+                <b>NOx LTO (g):</b> ${{
+                  airport["NOx LTO Total mass (g)"].toLocaleString()
+                }}
+              </div>
+            `
+          }});
+
+          marker.addListener('click', function() {{
+            popup.open(map, marker);
+          }});
+        }});
+      }}
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={st.secrets['google']['api_key']}&callback=initMap" async defer></script>
+    """
+
     # Display the map
-    st_folium(m, use_container_width=True, height=600)
-
+    with st.container():
+        html(map_html, height=650)
 else:
     st.warning("No data available for the selected filter. Please adjust your selection.")
 
