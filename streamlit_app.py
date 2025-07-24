@@ -84,12 +84,26 @@ if not filtered_df.empty:
     center_lon = filtered_df['Airport Longitude'].mean()
     zoom_level = 5 if selected_country else 2
 
-    # Snazzy Maps no-label style
     snazzy_style = [
+        # Turn off all labels
         {"featureType": "all", "elementType": "labels", "stylers": [{"visibility": "off"}]},
+        
+        # Simplify roads
         {"featureType": "road", "elementType": "geometry", "stylers": [{"lightness": 100}, {"visibility": "simplified"}]},
-        {"featureType": "water", "elementType": "geometry", "stylers": [{"visibility": "on"}, {"color": "#C6E2FF"}]}
-    ]
+        
+        # Style water
+        {"featureType": "water", "elementType": "geometry", "stylers": [{"visibility": "on"}, {"color": "#C6E2FF"}]},
+        
+        # Hide country borders
+        {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
+        
+        # Optional: hide province/state boundaries
+        {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
+        
+        # Optional: hide land parcel and locality lines
+        {"featureType": "administrative.locality", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
+        {"featureType": "administrative.land_parcel", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]}
+]
 
     # Prepare JS-safe records
     airport_data = filtered_df.to_dict(orient='records')
