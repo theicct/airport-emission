@@ -135,10 +135,10 @@ if not filtered_df.empty:
             fullscreenControl: true,
             minZoom: 2,
             maxZoom: 8,
-            zoomControl: true,
-            zoomControlOptions: {{
-              position: google.maps.ControlPosition.RIGHT_BOTTOM
-            }},
+#            zoomControl: true,
+#            zoomControlOptions: {{
+#              position: google.maps.ControlPosition.RIGHT_BOTTOM
+#            }},
             disableDefaultUI: false
           }});
 
