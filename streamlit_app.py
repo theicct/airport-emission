@@ -46,12 +46,18 @@ df.columns = df.columns.str.strip()
 # Sidebar Filters (default spacing)
 st.sidebar.header("Filter Airports")
 
-# Allow only one country selection
+# Create country options with "All" on top and allow one country selection
+country_options = ["All"] + sorted(df['Country'].dropna().unique().tolist())
+
+# Select box with "All" option
 selected_country = st.sidebar.selectbox(
     "Select Country", 
-    options=sorted(df['Country'].dropna().unique())
+    options=country_options
 )
-filtered_df = df[df['Country'] == selected_country]
+
+# Filter data based on selected country
+filtered_df = df if selected_country == "All" else df[df['Country'] == selected_country]
+
 
 # Allow multiple airports (still using multiselect)
 selected_airports = st.sidebar.multiselect(
@@ -82,7 +88,7 @@ else:
 if not filtered_df.empty:
     center_lat = filtered_df['Airport Latitude'].mean()
     center_lon = filtered_df['Airport Longitude'].mean()
-    zoom_level = 5 if selected_country else 2
+    zoom_level = 2 if selected_country == "All" else 5
 
     snazzy_style = [
         # Turn off all labels
@@ -116,65 +122,71 @@ if not filtered_df.empty:
 
     # Build HTML for embedding Google Map
     map_html = f"""
-    <div id="map" style="height: 600px; width: 100%;"></div>
-    <script>
-      function initMap() {{
-        var center = {{lat: {center_lat}, lng: {center_lon} }};
-        var map = new google.maps.Map(document.getElementById('map'), {{
-          center: center,
-          zoom: {zoom_level},
-          styles: {json.dumps(snazzy_style)},
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: false
-        }});
-
-        var airports = {json.dumps(airport_data)};
-        airports.forEach(function(airport) {{
-          var marker = new google.maps.Marker({{
-            position: {{ lat: airport["Airport Latitude"], lng: airport["Airport Longitude"] }},
-            map: map,
-            title: airport["Airport Name"],
-            icon: {{
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: "#ffffff",
-              fillOpacity: 1,
-              scale: 6,
-              strokeColor: "#007D93",
-              strokeWeight: 3
-            }}
+      <div id="map" style="height: 600px; width: 100%;"></div>
+      <script>
+        function initMap() {{
+          var center = {{lat: {center_lat}, lng: {center_lon} }};
+          var map = new google.maps.Map(document.getElementById('map'), {{
+            center: center,
+            zoom: {zoom_level},
+            styles: {json.dumps(snazzy_style)},
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            minZoom: 2,
+            maxZoom: 8,
+            zoomControl: true,
+            zoomControlOptions: {{
+              position: google.maps.ControlPosition.RIGHT_BOTTOM
+            }},
+            disableDefaultUI: false
           }});
 
-          var popup = new google.maps.InfoWindow({{
-            content: `
-              <div style="font-size: 14px;">
-                <b>Airport:</b> ${{
-                  airport["Airport Name"]
-                }}<br>
-                <b>Country:</b> ${{
-                  airport["Country"]
-                }}<br>
-                <b>Flights:</b> ${{
-                  airport["Flights"].toLocaleString()
-                }}<br>
-                <b>Fuel LTO Cycle (kg):</b> ${{
-                  airport["Fuel LTO Cycle (kg)"].toLocaleString()
-                }}<br>
-                <b>NOx LTO (g):</b> ${{
-                  airport["NOx LTO Total mass (g)"].toLocaleString()
-                }}
-              </div>
-            `
+          var bounds = new google.maps.LatLngBounds();
+          var airports = {json.dumps(airport_data)};
+
+          airports.forEach(function(airport) {{
+            var latLng = new google.maps.LatLng(airport["Airport Latitude"], airport["Airport Longitude"]);
+            var marker = new google.maps.Marker({{
+              position: latLng,
+              map: map,
+              title: airport["Airport Name"],
+              icon: {{
+                path: google.maps.SymbolPath.CIRCLE,
+                fillColor: "#ffffff",
+                fillOpacity: 1,
+                scale: 6,
+                strokeColor: "#007D93",
+                strokeWeight: 3
+              }}
+            }});
+
+            var popup = new google.maps.InfoWindow({{
+              content: `
+                <div style="font-size: 14px;">
+                  <b>Airport:</b> ${{airport["Airport Name"]}}<br>
+                  <b>Country:</b> ${{airport["Country"]}}<br>
+                  <b>Flights:</b> ${{airport["Flights"].toLocaleString()}}<br>
+                  <b>Fuel LTO Cycle (kg):</b> ${{airport["Fuel LTO Cycle (kg)"].toLocaleString()}}<br>
+                  <b>NOx LTO (g):</b> ${{airport["NOx LTO Total mass (g)"].toLocaleString()}}
+                </div>
+              `
+            }});
+
+            marker.addListener('click', function() {{
+              popup.open(map, marker);
+            }});
+
+            bounds.extend(latLng);
           }});
 
-          marker.addListener('click', function() {{
-            popup.open(map, marker);
-          }});
-        }});
-      }}
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={st.secrets['google']['api_key']}&callback=initMap" async defer></script>
-    """
+          if (airports.length > 1) {{
+            map.fitBounds(bounds);
+          }}
+        }}
+      </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key={st.secrets['google']['api_key']}&callback=initMap" async defer></script>
+      """
 
     # Display the map
     with st.container():
