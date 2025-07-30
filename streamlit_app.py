@@ -134,7 +134,12 @@ if not filtered_df.empty:
             streetViewControl: false,
             fullscreenControl: true,
             minZoom: 2,
-            maxZoom: 8
+            maxZoom: 10,
+            zoomControl: true,
+            zoomControlOptions: {{
+            position: google.maps.ControlPosition.RIGHT_BOTTOM
+            }},
+            disableDefaultUI: false
           }});
 
           var bounds = new google.maps.LatLngBounds();
