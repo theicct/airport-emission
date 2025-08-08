@@ -122,7 +122,7 @@ if not filtered_df.empty:
 
     # Build HTML for embedding Google Map
     map_html = f"""
-      <div id="map" style="height: 600px; width: 1200px;"></div>
+      <div id="map" style="height: 600px; width: 100%;"></div>
       <script>
         function initMap() {{
           var center = {{lat: {center_lat}, lng: {center_lon} }};
