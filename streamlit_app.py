@@ -6,9 +6,16 @@ import json
 from streamlit.components.v1 import html
 from PIL import Image
 
+st.set_page_config(
+    page_title="Data Explorer - AIRLIFT",
+    page_icon="logo/icct-icon-tab.png",
+    layout="wide"
+)
+
 api_key = st.secrets["COUNTERAPI_KEY"]
 up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
 get_url = "https://api.counterapi.dev/v2/aviation/airlift"
+
 
 # Set API details
 headers = {
