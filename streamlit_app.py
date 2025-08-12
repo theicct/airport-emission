@@ -91,6 +91,22 @@ if not filtered_df.empty:
 else:
     center_lat, center_lon = 20, 0
 
+# Add CSS to make the container full width
+st.markdown(
+    """
+    <style>
+    .full-width-container {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Create and display Google Map using Snazzy style
 if not filtered_df.empty:
     center_lat = filtered_df['Airport Latitude'].mean()
