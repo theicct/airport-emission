@@ -91,6 +91,112 @@ if not filtered_df.empty:
 else:
     center_lat, center_lon = 20, 0
 
+# Create and display Google Map using Snazzy style
+if not filtered_df.empty:
+    center_lat = filtered_df['Airport Latitude'].mean()
+    center_lon = filtered_df['Airport Longitude'].mean()
+    zoom_level = 2 if selected_country == "All" else 5
+
+    snazzy_style = [
+        # Turn off all labels
+        {"featureType": "all", "elementType": "labels", "stylers": [{"visibility": "off"}]},
+        
+        # Simplify roads
+        {"featureType": "road", "elementType": "geometry", "stylers": [{"lightness": 100}, {"visibility": "simplified"}]},
+        
+        # Style water
+        {"featureType": "water", "elementType": "geometry", "stylers": [{"visibility": "on"}, {"color": "#C6E2FF"}]},
+        
+        # Hide country borders
+        {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
+        
+        # Optional: hide province/state boundaries
+        {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
+        
+        # Optional: hide land parcel and locality lines
+        {"featureType": "administrative.locality", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
+        {"featureType": "administrative.land_parcel", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]}
+]
+
+    # Prepare JS-safe records
+    airport_data = filtered_df.to_dict(orient='records')
+    for row in airport_data:
+        row['Airport Latitude'] = float(row['Airport Latitude'])
+        row['Airport Longitude'] = float(row['Airport Longitude'])
+        row['Flights'] = int(row['Flights'])
+        row['Fuel LTO Cycle (kg)'] = int(row['Fuel LTO Cycle (kg)'])
+        row['NOx LTO Total mass (g)'] = int(row['NOx LTO Total mass (g)'])
+
+    # Build HTML for embedding Google Map
+    map_html = f"""
+      <div id="map" style="height: 600px; width: 100%;"></div>
+      <script>
+        function initMap() {{
+          var center = {{lat: {center_lat}, lng: {center_lon} }};
+          var map = new google.maps.Map(document.getElementById('map'), {{
+            center: center,
+            zoom: {zoom_level},
+            styles: {json.dumps(snazzy_style)},
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            minZoom: 2,
+            maxZoom: 10,
+            disableDefaultUI: false
+          }});
+
+          var bounds = new google.maps.LatLngBounds();
+          var airports = {json.dumps(airport_data)};
+
+          airports.forEach(function(airport) {{
+            var latLng = new google.maps.LatLng(airport["Airport Latitude"], airport["Airport Longitude"]);
+            var marker = new google.maps.Marker({{
+              position: latLng,
+              map: map,
+              title: airport["Airport Name"],
+              icon: {{
+                path: google.maps.SymbolPath.CIRCLE,
+                fillColor: "#ffffff",
+                fillOpacity: 1,
+                scale: 6,
+                strokeColor: "#007D93",
+                strokeWeight: 3
+              }}
+            }});
+
+            var popup = new google.maps.InfoWindow({{
+              content: `
+                <div style="font-size: 14px;">
+                  <b>Airport:</b> ${{airport["Airport Name"]}}<br>
+                  <b>Country:</b> ${{airport["Country"]}}<br>
+                  <b>Flights:</b> ${{airport["Flights"].toLocaleString()}}<br>
+                  <b>Fuel LTO Cycle (kg):</b> ${{airport["Fuel LTO Cycle (kg)"].toLocaleString()}}<br>
+                  <b>NOx LTO (g):</b> ${{airport["NOx LTO Total mass (g)"].toLocaleString()}}
+                </div>
+              `
+            }});
+
+            marker.addListener('click', function() {{
+              popup.open(map, marker);
+            }});
+
+            bounds.extend(latLng);
+          }});
+
+          if (airports.length > 1) {{
+            map.fitBounds(bounds);
+          }}
+        }}
+      </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key={st.secrets['google']['api_key']}&callback=initMap" async defer></script>
+      """
+
+    # Display the map
+    with st.container():
+        html(map_html, height=650)
+else:
+    st.warning("No data available for the selected filter. Please adjust your selection.")
+
 # Summary
 st.subheader("Summary of Filtered Results")
 
