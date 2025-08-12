@@ -155,7 +155,6 @@ if not filtered_df.empty:
             styles: {json.dumps(snazzy_style)},
             mapTypeControl: false,
             streetViewControl: false,
-            fullscreenControl: true,
             minZoom: 2,
             maxZoom: 10
           }});
