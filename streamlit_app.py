@@ -157,8 +157,7 @@ if not filtered_df.empty:
             streetViewControl: false,
             fullscreenControl: true,
             minZoom: 2,
-            maxZoom: 10,
-            disableDefaultUI: false
+            maxZoom: 10
           }});
 
           var bounds = new google.maps.LatLngBounds();
