@@ -232,6 +232,24 @@ formatted_summary_df = summary_df.map(lambda x: f"{x:,}")
 # Display the formatted DataFrame without the index
 st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
 
+# Top 5 airports
+st.subheader("Top5 Airports of Filtered Results based on Flights")
+
+# Compute top airports
+Top_5_airport = (
+    filtered_df[['Airport Name', 'Flights', 'Fuel LTO Cycle (kg)', 'NOx LTO Total mass (g)']]
+    .nlargest(5, 'Flights')
+    .set_index('Airport Name')
+)
+
+# Format numbers with commas
+Top_5_airport['Flights'] = Top_5_airport['Flights'].map('{:,}'.format)
+Top_5_airport['Fuel LTO Cycle (kg)'] = Top_5_airport['Fuel LTO Cycle (kg)'].map('{:,.0f}'.format)
+Top_5_airport['NOx LTO Total mass (g)'] = Top_5_airport['NOx LTO Total mass (g)'].map('{:,.0f}'.format)
+
+# Display
+st.dataframe(Top_5_airport)
+
 ## Dispaly data partners
 st.markdown("---")
 st.subheader("Data Partners")
