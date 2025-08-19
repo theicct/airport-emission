@@ -69,7 +69,7 @@ filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] i
 # Title
 st.title("AIRLIFT - Aircraft Local Impact Footprint Tool ")
 st.markdown(
-    "This map displays the top 500 airports with the highest flight counts. Click to see the greenhouse gas and NO<sub>x</sub> pollution profile from aircraft landing and take-off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer.",
+    "This map displays the top 500 airports with the highest flight counts in 2023. Click to see the greenhouse gas and NO<sub>x</sub> pollution profile from aircraft landing and take-off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer.",
     unsafe_allow_html=True
 )
 st.markdown(
@@ -232,8 +232,8 @@ formatted_summary_df = summary_df.map(lambda x: f"{x:,}")
 # Display the formatted DataFrame without the index
 st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
 
-# Top 5 airports
-st.subheader("Top 5 Airports of Filtered Results based on Flights")
+# Top airports
+st.subheader("Top Airports of Filtered Results based on Flights")
 
 # Compute top airports
 Top_5_airport = (
