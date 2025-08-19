@@ -40,7 +40,7 @@ with st.sidebar:
 
 
 # Load data
-df = pd.read_csv("Data_Sample_with_coordinates_500_airports.csv")
+df = pd.read_csv("Data_Explorer_Final_500_example_v2.csv")
 df.columns = df.columns.str.strip()
 
 # Sidebar Filters (default spacing)
@@ -69,11 +69,7 @@ filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] i
 # Title
 st.title("AIRLIFT - Aircraft Local Impact Footprint Tool ")
 st.markdown(
-    "This map displays the top 500 airports with the highest flight counts in 2023. Click to see the greenhouse gas and NO<sub>x</sub> pollution profile from aircraft landing and take-off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer.",
-    unsafe_allow_html=True
-)
-st.markdown(
-    'To request access to the full dataset of 5,000 airports with different flight categories and other pollutants (PM<sub>2.5</sub>, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.',
+    """This map displays the top 500 airports with high flight counts in 2023. Click to see the greenhouse gas and NO<sub>x</sub> pollution profile from aircraft landing and take-off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer. To request access to the full dataset of 5,000 airports with different flight categories and other pollutants (PM<sub>2.5</sub>, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.""",
     unsafe_allow_html=True
 )
 
@@ -149,7 +145,7 @@ if not filtered_df.empty:
             mapTypeControl: false,
             streetViewControl: false,
             minZoom: 2,
-            maxZoom: 10
+            maxZoom: 12
           }});
 
           var bounds = new google.maps.LatLngBounds();
@@ -237,7 +233,7 @@ st.subheader("Top Airports of Filtered Results based on Flights")
 
 # Compute top airports
 Top_5_airport = (
-    filtered_df[['Airport Name', 'Flights', 'Fuel LTO Cycle (kg)', 'NOx LTO Total mass (g)']]
+    filtered_df[['Airport Name', 'Country', 'Flights', 'Fuel LTO Cycle (kg)', 'NOx LTO Total mass (g)']]
     .nlargest(5, 'Flights')
     .set_index('Airport Name')
 )
