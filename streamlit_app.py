@@ -233,7 +233,7 @@ formatted_summary_df = summary_df.map(lambda x: f"{x:,}")
 st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
 
 # Top 5 airports
-st.subheader("Top5 Airports of Filtered Results based on Flights")
+st.subheader("Top 5 Airports of Filtered Results based on Flights")
 
 # Compute top airports
 Top_5_airport = (
