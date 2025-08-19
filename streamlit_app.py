@@ -253,7 +253,6 @@ st.subheader("Data Partners")
 # === Spire Section ===
 spire_col1, spire_col2 = st.columns([1, 4])
 with spire_col1:
-    st.write("")
     st.image(spire_logo)
 with spire_col2:
     st.markdown("""
@@ -270,7 +269,6 @@ with spire_col2:
 # === IBA Section ===
 iba_col1, iba_col2 = st.columns([1, 4])
 with iba_col1:
-    st.write("")
     st.image(iba_logo)
 with iba_col2:
     st.markdown("""
