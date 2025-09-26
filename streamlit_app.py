@@ -308,3 +308,5 @@ if response.status_code == 200:
     )
 else:
     st.warning("⚠️ Failed to retrieve visit counter.")
+
+# End
