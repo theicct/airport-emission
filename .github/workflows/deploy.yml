@@ -3,21 +3,18 @@ name: Deploy AIRLIFT to Azure Web App
 
 on:
   push:
-    branches: [ main ]   # change to [ new_update ] when you switch
+    branches: [ main ]   # switch to [ new_update ] later if needed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Deploy repo contents directly to /home/site/wwwroot
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: icct-airlift
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
-          
