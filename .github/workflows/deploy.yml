@@ -1,0 +1,40 @@
+name: Deploy AIRLIFT to Azure Web App
+
+on:
+  push:
+    branches: [ main ] 
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # OPTIONAL: run tests or lint here
+
+      - name: Prepare build folder
+        run: |
+          mkdir build
+          cp -r * build/
+          # if you have hidden files (.streamlit/config.toml), copy them too
+          shopt -s dotglob
+          cp -r .streamlit build/.streamlit || true
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: icct-airlift
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: build
