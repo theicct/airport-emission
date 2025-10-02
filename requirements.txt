@@ -1,4 +1,3 @@
-# REQUIRED CONTENT FOR AZURE DEPLOYMENT
 streamlit
 streamlit-folium
 pandas
