@@ -1,2 +1,6 @@
 streamlit
 streamlit-folium
+pandas
+folium
+requests
+Pillow
