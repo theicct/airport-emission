@@ -4,6 +4,7 @@ name: Deploy AIRLIFT to Azure Web App
 on:
   push:
     branches: [ main ]   # switch to [ new_update ] later if needed
+  workflow_dispatch: {} 
 
 jobs:
   deploy:
