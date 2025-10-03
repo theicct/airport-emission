@@ -40,7 +40,7 @@ with st.sidebar:
 
 
 # Load data
-df = pd.read_csv("Data_Sample_with_coordinates_500_airports.csv")
+df = pd.read_csv("Data_Explorer_Final_500_example_v3.csv")
 df.columns = df.columns.str.strip()
 
 # Sidebar Filters (default spacing)
@@ -69,11 +69,11 @@ filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] i
 # Title
 st.title("AIRLIFT - Aircraft Local Impact Footprint Tool ")
 st.markdown(
-    "This map displays the top 500 airports with the highest flight counts. Click to see the greenhouse gas and NO<sub>x</sub> pollution profile from aircraft landing and take-off activity (LTO). This serves as an example data from the International Council on Clean Transportation's Data Explorer.",
+    "By: Daniel Sitompul",
     unsafe_allow_html=True
 )
 st.markdown(
-    'To request access to the full dataset of 5,000 airports with different flight categories and other pollutants (PM<sub>2.5</sub>, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.',
+    """This map displays the top 500 airports with high flight counts in 2023. Click to see the greenhouse gas and NOx pollution profile from aircraft landing and take-off (LTO) activity. This is a sample of data from the International Council on Clean Transportation's Data Explorer. For the full dataset of 5,000 airports with different flight categories and other pollutants (PM2.5, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.""",
     unsafe_allow_html=True
 )
 
@@ -149,7 +149,7 @@ if not filtered_df.empty:
             mapTypeControl: false,
             streetViewControl: false,
             minZoom: 2,
-            maxZoom: 10
+            maxZoom: 12
           }});
 
           var bounds = new google.maps.LatLngBounds();
@@ -232,6 +232,24 @@ formatted_summary_df = summary_df.map(lambda x: f"{x:,}")
 # Display the formatted DataFrame without the index
 st.dataframe(formatted_summary_df, use_container_width=True, hide_index=True)
 
+# Top airports
+st.subheader("Top Airports of Filtered Results based on Flights")
+
+# Compute top airports
+Top_5_airport = (
+    filtered_df[['Airport Name', 'Country', 'Flights', 'Fuel LTO Cycle (kg)', 'NOx LTO Total mass (g)']]
+    .nlargest(5, 'Flights')
+    .set_index('Airport Name')
+)
+
+# Format numbers with commas
+Top_5_airport['Flights'] = Top_5_airport['Flights'].map('{:,}'.format)
+Top_5_airport['Fuel LTO Cycle (kg)'] = Top_5_airport['Fuel LTO Cycle (kg)'].map('{:,.0f}'.format)
+Top_5_airport['NOx LTO Total mass (g)'] = Top_5_airport['NOx LTO Total mass (g)'].map('{:,.0f}'.format)
+
+# Display
+st.dataframe(Top_5_airport)
+
 ## Dispaly data partners
 st.markdown("---")
 st.subheader("Data Partners")
@@ -239,7 +257,6 @@ st.subheader("Data Partners")
 # === Spire Section ===
 spire_col1, spire_col2 = st.columns([1, 4])
 with spire_col1:
-    st.write("")
     st.image(spire_logo)
 with spire_col2:
     st.markdown("""
@@ -256,7 +273,6 @@ with spire_col2:
 # === IBA Section ===
 iba_col1, iba_col2 = st.columns([1, 4])
 with iba_col1:
-    st.write("")
     st.image(iba_logo)
 with iba_col2:
     st.markdown("""
@@ -292,3 +308,5 @@ if response.status_code == 200:
     )
 else:
     st.warning("⚠️ Failed to retrieve visit counter.")
+
+# End
