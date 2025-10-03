@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import folium
@@ -12,9 +13,25 @@ st.set_page_config(
     layout="wide"
 )
 
-api_key = st.secrets["COUNTERAPI_KEY"]
+def get_secret(name, default=None):
+    # Prefer Azure App Settings (env vars), fallback to Streamlit secrets.toml
+    return os.getenv(name) or st.secrets.get(name, default)
+
+COUNTER_API_KEY = get_secret("COUNTERAPI_KEY")
+GOOGLE_MAPS_API_KEY = get_secret("GOOGLE_MAPS_API_KEY")
+
+st.write("Maps key loaded:", bool(GOOGLE_MAPS_API_KEY))
+# DO NOT print the key itself
+
+if not COUNTER_API_KEY:
+    st.error("Missing COUNTERAPI_KEY. Set it in Azure App Settings or .streamlit/secrets.toml.")
+    st.stop()
+
+api_key = COUNTER_API_KEY
 up_url = "https://api.counterapi.dev/v2/aviation/airlift/up"
 get_url = "https://api.counterapi.dev/v2/aviation/airlift"
+
+headers = {"Authorization": f"Bearer {api_key}"}
 
 
 # Set API details
@@ -195,7 +212,7 @@ if not filtered_df.empty:
           }}
         }}
       </script>
-      <script src="https://maps.googleapis.com/maps/api/js?key={st.secrets['google']['api_key']}&callback=initMap" async defer></script>
+      <script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_MAPS_API_KEY}&callback=initMap" async defer></script>
       """
 
     # Display the map
