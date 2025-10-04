@@ -20,6 +20,7 @@ def get_secret(name, default=None):
 COUNTER_API_KEY = get_secret("COUNTERAPI_KEY")
 GOOGLE_MAPS_API_KEY = get_secret("GOOGLE_MAPS_API_KEY")
 
+
 if not COUNTER_API_KEY:
     st.error("Missing COUNTERAPI_KEY. Set it in Azure App Settings or .streamlit/secrets.toml.")
     st.stop()
