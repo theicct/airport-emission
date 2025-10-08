@@ -13,9 +13,13 @@ st.set_page_config(
 )
 
 # ---- EMBED & VIEW MODE HELPERS ----
-qs = st.query_params  # Streamlit >=1.31
-VIEW = qs.get("view", "full")
-IS_EMBED = qs.get("embed", "false").lower() == "true"
+IS_EMBED = False
+VIEW = 'full'
+
+if st.query_params:
+    qs = st.query_params  # Streamlit >=1.31
+    VIEW = qs.get("view", "full")
+    IS_EMBED = qs.get("embed", "true").lower() == "true"
 
 # ---- END Embed & view mode helpers ----
 
@@ -70,19 +74,19 @@ def render_primary_map(filtered_df, selected_country):
         snazzy_style = [
             # Turn off all labels
             {"featureType": "all", "elementType": "labels", "stylers": [{"visibility": "off"}]},
-            
+
             # Simplify roads
             {"featureType": "road", "elementType": "geometry", "stylers": [{"lightness": 100}, {"visibility": "simplified"}]},
-            
+
             # Style water
             {"featureType": "water", "elementType": "geometry", "stylers": [{"visibility": "on"}, {"color": "#C6E2FF"}]},
-            
+
             # Hide country borders
             {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
-            
+
             # Optional: hide province/state boundaries
             {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
-            
+
             # Optional: hide land parcel and locality lines
             {"featureType": "administrative.locality", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]},
             {"featureType": "administrative.land_parcel", "elementType": "geometry.stroke", "stylers": [{"visibility": "off"}]}
@@ -181,25 +185,9 @@ country_options = ["All"] + sorted(df['Country'].dropna().unique().tolist())
 
 #---- END of Initialization of data ----
 
-
-
-#---- IFRAME  ----
-if IS_EMBED:
-    hide_streamlit_chrome_for_iframe()
-    
-if VIEW == "map" and IS_EMBED:
-    # render only the map and return
-    # Initializing selected_country == all
-    selected_country = df['Country'].dropna().unique().tolist()
-    render_primary_map(filtered_df, selected_country)
-    st.stop()
-
-#---- END iframe ----
-
-
 # ---- API CALLS ----
 
-COUNTER_API_KEY = get_secret("COUNTERAPI_KEY") if not IS_EMBED else None
+COUNTER_API_KEY = get_secret("COUNTERAPI_KEY")
 GOOGLE_MAPS_API_KEY = get_secret("GOOGLE_MAPS_API_KEY")
 
 if isinstance(GOOGLE_MAPS_API_KEY, dict):  # handle [google] style secrets
@@ -230,6 +218,20 @@ if "counted" not in st.session_state:
 
 # ---- END of API calls ----
 
+#---- IFRAME  ----
+if IS_EMBED:
+    hide_streamlit_chrome_for_iframe()
+
+if VIEW == "map" and IS_EMBED:
+    # render only the map and return
+    # Initializing selected_country == all
+    selected_country = 'All'
+    filtered_df = df if selected_country == "All" else df[df['Country'] == selected_country]
+    render_primary_map(filtered_df, selected_country)
+    st.stop()
+
+#---- END iframe ----
+
 
 # ---- WEBSITE BUILDING ----
 if not IS_EMBED:
@@ -237,8 +239,8 @@ if not IS_EMBED:
     # Load logo
     icon = Image.open("logo/icct-icon-tab.png")
     logo = Image.open("logo/icct_logo.jpg")
-    spire_logo = Image.open("logo/LOGO_Spire_Aviation_Color_RGB.png") 
-    iba_logo = Image.open("logo/IBA Logo.png")      
+    spire_logo = Image.open("logo/LOGO_Spire_Aviation_Color_RGB.png")
+    iba_logo = Image.open("logo/IBA Logo.png")
 
 
     # Display logo at the top of the sidebar
@@ -250,7 +252,7 @@ if not IS_EMBED:
 
     # Select box with "All" option
     selected_country = st.sidebar.selectbox(
-        "Select Country", 
+        "Select Country",
         options=country_options
     )
 
@@ -260,7 +262,7 @@ if not IS_EMBED:
 
     # Allow multiple airports (still using multiselect)
     selected_airports = st.sidebar.multiselect(
-        "Select Airport", 
+        "Select Airport",
         options=sorted(filtered_df['Airport Name'].dropna().unique())
     )
     filtered_df = filtered_df[filtered_df['Airport Name'].isin(selected_airports)] if selected_airports else filtered_df
@@ -272,6 +274,7 @@ if not IS_EMBED:
         "By: Daniel Sitompul",
         unsafe_allow_html=True
     )
+
     st.markdown(
         """This map displays the top 500 airports with high flight counts in 2023. Click to see the greenhouse gas and NOx pollution profile from aircraft landing and take-off (LTO) activity. This is a sample of data from the International Council on Clean Transportation's Data Explorer. For the full dataset of 5,000 airports with different flight categories and other pollutants (PM2.5, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.""",
         unsafe_allow_html=True
@@ -366,7 +369,7 @@ if not IS_EMBED:
         post_response = requests.get(up_url, headers=headers)
         if post_response.status_code == 200:
             st.session_state.counted = True  # Mark as counted
-            
+
     if not st.session_state.counted:
         if post_response.status_code == 200:
                 st.markdown("---")  # separator line
