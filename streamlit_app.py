@@ -274,8 +274,6 @@ if not IS_EMBED:
         "By: Daniel Sitompul",
         unsafe_allow_html=True
     )
-
-    st.markdown(('View : ', VIEW, 'IS_embed:', IS_EMBED), unsafe_allow_html=True)
     
     st.markdown(
         """This map displays the top 500 airports with high flight counts in 2023. Click to see the greenhouse gas and NOx pollution profile from aircraft landing and take-off (LTO) activity. This is a sample of data from the International Council on Clean Transportation's Data Explorer. For the full dataset of 5,000 airports with different flight categories and other pollutants (PM2.5, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.""",
