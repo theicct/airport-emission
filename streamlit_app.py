@@ -41,7 +41,9 @@ def hide_streamlit_chrome_for_iframe():
     """, unsafe_allow_html=True)
 
 
-def render_primary_map(filtered_df, selected_country):
+def render_primary_map(filtered_df, selected_country, is_embedded = False):
+
+
     # Map center logic
     if not filtered_df.empty:
         center_lat = filtered_df['Airport Latitude'].mean()
@@ -51,15 +53,22 @@ def render_primary_map(filtered_df, selected_country):
 
     # Add CSS to make the container full width
     st.markdown(
-        """
+        f"""
         <style>
-        .full-width-container {
+        html, body, [data-testid="stAppViewContainer"], .main, .block-container {{
+            {"height: 100vh; margin: 0; padding: 0;" if is_embedded else ""}
+        }}
+        .full-width-container {{
             width: 100% !important;
             margin-left: 0 !important;
             margin-right: 0 !important;
             padding-left: 0 !important;
             padding-right: 0 !important;
-        }
+        }}
+        #map {{
+            width: 100%;
+            {"height: 100vh;" if is_embedded else "height: 650px;"}
+        }}
         </style>
         """,
         unsafe_allow_html=True
@@ -103,7 +112,7 @@ def render_primary_map(filtered_df, selected_country):
 
         # Build HTML for embedding Google Map
         map_html = f"""
-        <div id="map" style="height: 600px; width: 100%;"></div>
+        <div id="map" style="height: 100vh; width: 100%;"></div>
         <script>
             function initMap() {{
             var center = {{lat: {center_lat}, lng: {center_lon} }};
@@ -165,7 +174,10 @@ def render_primary_map(filtered_df, selected_country):
 
         # Display the map
         with st.container():
-            html(map_html, height=650)
+            if is_embedded:
+                html(map_html, height=800)
+            else:
+                html(map_html, height=650)
     else:
         st.warning("No data available for the selected filter. Please adjust your selection.")
 
@@ -227,7 +239,7 @@ if VIEW == "map" and IS_EMBED:
     # Initializing selected_country == all
     selected_country = 'All'
     filtered_df = df if selected_country == "All" else df[df['Country'] == selected_country]
-    render_primary_map(filtered_df, selected_country)
+    render_primary_map(filtered_df, selected_country, IS_EMBED)
     st.stop()
 
 #---- END iframe ----
@@ -274,7 +286,9 @@ if not IS_EMBED:
         "By: Daniel Sitompul",
         unsafe_allow_html=True
     )
-    
+
+    # st.markdown(('View : ', VIEW, 'IS_embed:', IS_EMBED), unsafe_allow_html=True)
+
     st.markdown(
         """This map displays the top 500 airports with high flight counts in 2023. Click to see the greenhouse gas and NOx pollution profile from aircraft landing and take-off (LTO) activity. This is a sample of data from the International Council on Clean Transportation's Data Explorer. For the full dataset of 5,000 airports with different flight categories and other pollutants (PM2.5, HC, and CO), please request access here: <a href="https://forms.office.com/pages/responsepage.aspx?id=n9G9f4nD7UyKBAtQkLgM_hpDOkQLJf9JslWw2OJPUpNUNElSSkJBOTdQVU1WOFBQWkE0SUxIMU9BWC4u&route=shorturl" target="_blank">Request Access Form</a>.""",
         unsafe_allow_html=True
