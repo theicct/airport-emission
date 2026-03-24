@@ -1,0 +1,3 @@
+window.AIRLIFT_CONFIG = {
+  googleMapsApiKey: "REPLACE_WITH_GOOGLE_MAPS_API_KEY",
+};
