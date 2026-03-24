@@ -189,7 +189,7 @@ def get_secret(name, default=None):
 #---- INITIALIZATION OF DATA ----
 
 # Load data
-df = pd.read_csv("Data_Explorer_Final_500_example_v3.csv")
+df = pd.read_csv("../Data_Explorer_Final_500_example_v3.csv")
 df.columns = df.columns.str.strip()
 
 # Create country options with "All" on top and allow one country selection
@@ -249,10 +249,10 @@ if VIEW == "map" and IS_EMBED:
 if not IS_EMBED:
 
     # Load logo
-    icon = Image.open("logo/icct-icon-tab.png")
-    logo = Image.open("logo/icct_logo.jpg")
-    spire_logo = Image.open("logo/LOGO_Spire_Aviation_Color_RGB.png")
-    iba_logo = Image.open("logo/IBA Logo.png")
+    icon = Image.open("../logo/icct-icon-tab.png")
+    logo = Image.open("../logo/icct_logo.jpg")
+    spire_logo = Image.open("../logo/LOGO_Spire_Aviation_Color_RGB.png")
+    iba_logo = Image.open("../logo/IBA Logo.png")
 
 
     # Display logo at the top of the sidebar
