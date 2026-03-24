@@ -1,41 +1,38 @@
 # AIRLIFT - Aircraft Local Impact Footprint Tool
-Visualization by: Daniel Sitompul
 
-This repository shares the full code to run the AIRLIFT data explorer visualization that shares 500 airports as an example to the main data explorer.
-Related publication link: https://theicct.org/airlift-aircraft-local-impact-footprint-tool-nov25/
+AIRLIFT is now set up as a lightweight web application instead of a Streamlit app. The new frontend keeps the core experience from the original prototype while introducing a more polished ICCT-aligned presentation layer, responsive layout, and a dedicated embed page.
 
-### Preparation to run this on your own machine
+## What is included
 
-1. Google MAPs API
-   To run this map, you need to have a google map API ready. You can create it through the Google Cloud Console (https://console.cloud.google.com).    
+- `index.html`: main AIRLIFT experience
+- `embed.html`: map-only embed view
+- `styles.css`: shared visual system and layout
+- `app.js`: dataset loading, filtering, map rendering, summaries, and tables
+- `Data_Explorer_Final_500_example_v3.csv`: local sample dataset used by the app
 
-2. Counter API
-   To enable the counter, create an API through https://counterapi.dev 
+The original `streamlit_app.py` is still in the repository for reference during migration, but the new web version does not depend on Streamlit.
 
-3. Prepare a folder for API code:
-   i. Make a folder on the airport-emission directory '.streamlit'
-   ii. Input the API code:
-   ```
-   COUNTERAPI_KEY = "[your_counter_api_code]"
-   GOOGLE_MAPS_API_KEY = "[your_google_maps_api_code]"
-   ```
-   
-### How to run it on your own machine
+## How to run locally
 
-1. Install the requirements
+Because the app fetches the CSV in the browser, serve the folder over HTTP instead of opening `index.html` directly as a file.
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+Before starting the app, generate a local `config.js` from `.streamlit/secrets.toml`. Do not commit `config.js`.
 
-2. Run the app
+```bash
+cd "/Users/d.sitompul/Documents/5. Work/13. Data Explorer/AIRLIFT - Website/airlift"
+python3 generate_config.py
+python3 -m http.server 8000
+```
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
-   
-3. Open the website on your local machine by opening the local URL
-   Example of local URL:
-   ```
-   $ http://localhost:8501
-   ```
+Then open:
+
+- `http://localhost:8000/index.html`
+- `http://localhost:8000/embed.html`
+
+## Notes
+
+- The current version uses Google Maps JavaScript API for the map layer and marker styling.
+- `config.js` is intentionally ignored by git so the browser key is not committed to the repository.
+- `generate_config.py` reads `GOOGLE_MAPS_API_KEY` from `.streamlit/secrets.toml` and writes the browser config file used by the app.
+- The previous visitor counter depended on a protected API key. It is not wired into the static frontend to avoid exposing secrets client-side.
+- If you want the counter back, the next step is to add a tiny backend or serverless endpoint that proxies the counter service securely.

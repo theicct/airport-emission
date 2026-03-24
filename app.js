@@ -1,6 +1,8 @@
 const DATA_URL = "Data_Explorer_Final_500_example_v3.csv";
 const DEFAULT_CENTER = [20, 0];
 const DEFAULT_ZOOM = 2;
+const AIRLIFT_CONFIG = window.AIRLIFT_CONFIG || {};
+const GOOGLE_MAPS_API_KEY = AIRLIFT_CONFIG.googleMapsApiKey || "";
 const MAP_STYLE = [
   { featureType: "all", elementType: "labels", stylers: [{ visibility: "off" }] },
   {
@@ -85,6 +87,8 @@ async function bootstrapApp() {
     }
   }, 2500);
 
+  loadGoogleMapsScript();
+
   try {
     const text = await fetch(DATA_URL).then((response) => {
       if (!response.ok) {
@@ -102,6 +106,25 @@ async function bootstrapApp() {
   } catch (error) {
     renderError(error);
   }
+}
+
+function loadGoogleMapsScript() {
+  if (!GOOGLE_MAPS_API_KEY) {
+    return;
+  }
+
+  if (document.querySelector('script[data-google-maps="true"]')) {
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
+    GOOGLE_MAPS_API_KEY
+  )}&callback=initAirliftMap`;
+  script.async = true;
+  script.defer = true;
+  script.dataset.googleMaps = "true";
+  document.head.appendChild(script);
 }
 
 function handleGoogleMapsReady() {
@@ -358,7 +381,7 @@ function renderMapUnavailable() {
 
   mapElement.innerHTML = `
     <div class="empty-state">
-      Google Maps did not load. This usually means the API key is restricted, invalid, or blocked for the current URL.
+      Google Maps did not load. Check that <code>config.js</code> exists and that the API key is valid for this URL.
     </div>
   `;
 }
