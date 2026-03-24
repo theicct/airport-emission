@@ -444,7 +444,7 @@ select[multiple] {
 .stat-card .value {
   display: block;
   margin-top: 10px;
-  font-size: clamp(0.9rem, 1.35vw, 1.2rem);
+  font-size: clamp(1.3rem, 2vw, 1.9rem);
   font-weight: 700;
   color: var(--brand-deep);
   line-height: 1.05;
