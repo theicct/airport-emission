@@ -19,7 +19,7 @@ Because the app fetches the CSV in the browser, serve the folder over HTTP inste
 Before starting the app, generate a local `config.js` from `.streamlit/secrets.toml`. Do not commit `config.js`.
 
 ```bash
-cd "[repo-location]"
+cd "/Users/d.sitompul/Documents/5. Work/13. Data Explorer/AIRLIFT - Website/airlift"
 python3 generate_config.py
 python3 -m http.server 8000
 ```
