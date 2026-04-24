@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="c407524e-3f5e-4eb3-bc4e-5ea2cac3232c" name="Changes" comment="new layout of AIRLIFT" />
+    <list default="true" id="c407524e-3f5e-4eb3-bc4e-5ea2cac3232c" name="Changes" comment="Rollback old AIRLIFT repo" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,7 +47,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "new__update",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "/Users/d.sitompul/Documents/GitHub/airport-emission",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
